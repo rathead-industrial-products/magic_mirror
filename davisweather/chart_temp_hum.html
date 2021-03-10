@@ -1,0 +1,167 @@
+<!doctype html>
+<html>
+
+<head>
+	<title>Line Chart Multiple Axes</title>
+	<script src="Chart.min.js"></script>
+  <script src="utils.js"></script>
+ <script src="moment.js"></script>
+	<style>
+	canvas {
+		-moz-user-select: none;
+		-webkit-user-select: none;
+		-ms-user-select: none;
+	}
+	</style>
+</head>
+
+<body>
+	<div style="width:95%;">
+		<canvas id="canvas"></canvas>
+	</div>
+	<button id="randomizeData">Randomize Data</button>
+	<script>
+	function fetch_davis_temp_hum() {
+    fetch('./davis')
+      .then(response => response.text())
+      .then(text => {
+        var xlabels = [];
+        var otmp = [];
+        var ohum = [];
+        var itmp = [];
+        var ihum = [];
+        text = text.split('\\r\n');
+        for(var i = 0; i < text.length-1; i++){
+          var data = JSON.parse(text[i]);
+          let date = moment.unix(data["data"]["ts"]).format('MM/DD/YY hh:mm')
+          xlabels.push(date)
+          otmp.push(data["data"]["conditions"][0]["temp"])
+          ohum.push(data["data"]["conditions"][0]["hum"])
+          itmp.push(data["data"]["conditions"][1]["temp_in"])
+          ihum.push(data["data"]["conditions"][1]["hum_in"])
+          //console.log(otmp, ohum, itmp, ihum);
+        }
+        lineChartData.labels = xlabels;
+        lineChartData.datasets[0].label = "Indoor Temperature (" + i + ')';
+        lineChartData.datasets[0].data = itmp;
+        lineChartData.datasets[1].data = ihum;
+        lineChartData.datasets[2].data = otmp;
+        lineChartData.datasets[3].data = ohum;
+    })
+  }
+
+		var lineChartData = {
+			labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+			datasets: [{
+				label: 'Indoor Temperature',
+				borderColor: window.chartColors.red,
+				backgroundColor: window.chartColors.red,
+				fill: false,
+				data: [
+					43.6,//randomScalingFactor(),
+					44.5,//randomScalingFactor(),
+					46.0,//randomScalingFactor(),
+					46.8,//randomScalingFactor(),
+					47.5,//randomScalingFactor(),
+					47.3,//randomScalingFactor(),
+					49.5//randomScalingFactor()
+				],
+				yAxisID: 'y-axis-1',
+			}, {
+				label: 'Indoor Humidity',
+				borderColor: window.chartColors.blue,
+				backgroundColor: window.chartColors.blue,
+				fill: false,
+				data: [
+					27.6,//randomScalingFactor(),
+					22.8,//randomScalingFactor(),
+					22.4,//randomScalingFactor(),
+					24.5,//randomScalingFactor(),
+					20.5,//randomScalingFactor(),
+					22.2,//randomScalingFactor(),
+					17.8//randomScalingFactor()
+				],
+				yAxisID: 'y-axis-2'
+			}, {
+			  label: 'Outdoor Temperature',
+				borderColor: window.chartColors.black,
+				backgroundColor: window.chartColors.black,
+				fill: false,
+				data: [
+					43.6,//randomScalingFactor(),
+					44.5,//randomScalingFactor(),
+					46.0,//randomScalingFactor(),
+					46.8,//randomScalingFactor(),
+					47.5,//randomScalingFactor(),
+					47.3,//randomScalingFactor(),
+					49.5//randomScalingFactor()
+				],
+				yAxisID: 'y-axis-1',
+			}, {
+				label: 'Outdoor Humidity',
+				borderColor: window.chartColors.green,
+				backgroundColor: window.chartColors.green,
+				fill: false,
+				data: [
+					27.6,//randomScalingFactor(),
+					22.8,//randomScalingFactor(),
+					22.4,//randomScalingFactor(),
+					24.5,//randomScalingFactor(),
+					20.5,//randomScalingFactor(),
+					22.2,//randomScalingFactor(),
+					17.8//randomScalingFactor()
+				],
+				yAxisID: 'y-axis-2'
+			}]
+		};
+
+		window.onload = function() {
+			var ctx = document.getElementById('canvas').getContext('2d');
+			window.myLine = Chart.Line(ctx, {
+				data: lineChartData,
+				options: {
+					responsive: true,
+					hoverMode: 'index',
+					stacked: false,
+					title: {
+						display: true,
+						text: 'Temperature and Humidity'
+					},
+					scales: {
+						yAxes: [{
+							type: 'linear', // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
+							display: true,
+							position: 'left',
+							id: 'y-axis-1',
+						}, {
+							type: 'linear', // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
+							display: true,
+							position: 'right',
+							id: 'y-axis-2',
+
+							// grid line settings
+							gridLines: {
+								drawOnChartArea: false, // only want the grid lines for one axis to show up
+							},
+						}],
+					}
+				}
+			});
+		};
+
+		document.getElementById('randomizeData').addEventListener('click', function() {
+		  fetch_davis_temp_hum();
+		  //lineChartData.datasets[0].data = [50.8,52.3,52.0,53.5,54.3,54.3,53.7];
+		  //lineChartData.datasets[1].data = [18.9,12.8,13.1,11.9,11.0,7.8,8.6];
+			//lineChartData.datasets.forEach(function(dataset) {
+			//	dataset.data = dataset.data.map(function() {
+			//		return randomScalingFactor();
+			//	});
+			//});
+
+			window.myLine.update();
+		});
+	</script>
+</body>
+
+</html>
