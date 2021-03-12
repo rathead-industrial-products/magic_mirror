@@ -1,11 +1,12 @@
 <!doctype html>
-<html>
+<html lang="en">
 
 <head>
+	<meta charset="UTF-8">
 	<title>Line Chart Multiple Axes</title>
 	<script src="Chart.min.js"></script>
-  <script src="utils.js"></script>
- <script src="moment.js"></script>
+  	<script src="utils.js"></script>
+ 	<script src="moment.js"></script>
 	<style>
 	canvas {
 		-moz-user-select: none;
@@ -30,7 +31,7 @@
         var ohum = [];
         var itmp = [];
         var ihum = [];
-        text = text.split('\\r\n');
+        text = text.split('\\r');
         for(var i = 0; i < text.length-1; i++){
           var data = JSON.parse(text[i]);
           let date = moment.unix(data["data"]["ts"]).format('MM/DD/YY hh:mm')
